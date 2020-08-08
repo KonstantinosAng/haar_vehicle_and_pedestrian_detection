@@ -25,3 +25,6 @@ from src.main import Classifier
 classifier = Classifier(path_to_video_file)
 classifier.detect()
 ```
+
+## Examples
+
