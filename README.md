@@ -11,8 +11,17 @@ pip install -r requirements.txt
 
 ## Usage
 
-Use the classifier by running the [scr/main.py](src/main.py) file.
+Use the classifier by running the [scr/main.py](src/main.py) file using the default [video](videos/ped.mp4). You can also specify the path to a specific video using the following line.
 
 ```
-python m
+python src/main.py -v <path to video file>
+```
+
+Or you can import the classifier in your code by using:
+
+```
+from src.main import Classifier
+
+classifier = Classifier(path_to_video_file)
+classifier.detect()
 ```
