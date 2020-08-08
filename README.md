@@ -27,4 +27,11 @@ classifier.detect()
 ```
 
 ## Examples
-
+<div>
+  <p align="center">
+      <img src="img/example.png"/> 
+  </p>
+  <p align="center">
+      <img src="img/example1.png"/> 
+  </p>
+</div>
