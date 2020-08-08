@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Use the classifier by running the (src/main.py)[scr/main.py] file.
+Use the classifier by running the [scr/main.py](src/main.py) file.
 
 ```
 python m
