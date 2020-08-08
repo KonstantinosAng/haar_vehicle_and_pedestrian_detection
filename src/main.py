@@ -1,4 +1,12 @@
-""" AI detect cars and pedestrians using HAAR CASCADES features """
+"""
+Author: Konstantinos Angelopoulos
+Date: 08/08/2020
+
+Feel free to use and modify and if you like it give it a star.
+
+AI detect cars and pedestrians using HAAR CASCADES features
+inspired by https://www.youtube.com/watch?v=zg9X6ASj3Q0
+"""
 
 import cv2
 
@@ -29,9 +37,11 @@ class Classifier:
         peds = self.ped_classifier.detectMultiScale(gray)
         # place a rectangle around car
         for (x, y, w, h) in cars:
+          cv2.putText(frame,"Car", (x+w//2, y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
           cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
         # place a rectangle around pedestrians too
         for (x, y, w, h) in peds:
+          cv2.putText(frame,"Person", (x+w//2, y-5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
           cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         # show frame
         cv2.imshow('DETECTION', frame)
