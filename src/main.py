@@ -42,7 +42,7 @@ class Classifier:
 
   def region_of_interest(self):
     height, width = self.canny.shape[0], self.canny.shape[1]
-    polygons = np.array([[(int(width//2 - width//2.1), height-100), (int(width//2 + width//2.1), height-100), (width//2, height//2 + 110)]])
+    polygons = np.array([[(int(width//2 - width//2.1), height-60), (int(width//2 + width//2), height-60), (width//2, height//2 + 100)]])
     mask = np.zeros_like(self.canny)
     cv2.fillPoly(mask, polygons, 255)
     masked_image = cv2.bitwise_and(self.canny, mask)
