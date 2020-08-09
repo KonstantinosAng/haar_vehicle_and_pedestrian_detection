@@ -46,21 +46,24 @@ class Classifier:
     return masked_image
 
   def average_slope(self, lanes):
-    left, right = [], []
-    for line in lanes:
-      x1, y1, x2, y2 = line.reshape(4)
-      parameters = np.polyfit((x1, x2), (y1, y2), 1)
-      slope, intercept = parameters[0], parameters[1]
-      if slope < 0:
-        left.append((slope, intercept))
-      else:
-        right.append((slope, intercept))
-    left_average, right_average = np.average(left, axis=0), np.average(right, axis=0)
-    if left_average.size == 1: left_average = np.array([1, 1])
-    if right_average.size == 1: right_average = np.array([1, 1])
-    right_line = self.fix_lane_coordinate(right_average)
-    left_line = self.fix_lane_coordinate(left_average)
-    return np.array([left_line, right_line])
+    try:
+      left, right = [], []
+      for line in lanes:
+        x1, y1, x2, y2 = line.reshape(4)
+        parameters = np.polyfit((x1, x2), (y1, y2), 1)
+        slope, intercept = parameters[0], parameters[1]
+        if slope < 0:
+          left.append((slope, intercept))
+        else:
+          right.append((slope, intercept))
+      left_average, right_average = np.average(left, axis=0), np.average(right, axis=0)
+      if left_average.size == 1: left_average = np.array([1, 1])
+      if right_average.size == 1: right_average = np.array([1, 1])
+      right_line = self.fix_lane_coordinate(right_average)
+      left_line = self.fix_lane_coordinate(left_average)
+      return np.array([left_line, right_line])
+    except:
+      return np.array([1, 1, 1, 1])
 
   def fix_lane_coordinate(self, average):
     try:
@@ -100,34 +103,38 @@ class Classifier:
       lane_image = np.zeros_like(self.frame)
       if lanes is not None:
         for line in lanes:
-          x1, y1, x2, y2 = line.reshape(4)
+          x1, y1, x2, y2 = line
           cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
       self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
     except:
       pass
 
-  def detect(self):
+  def detect(self):      
     skip = 0
     # open video
     while self.video.isOpened():
-      # start reading video frames
-      ret, self.frame = self.video.read()
-      # if next frame grabbed
-      if ret and skip%3 == 0:
-        # transform to gray
-        self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        self.detect_cars()
-        self.detect_pedestrians()
-        self.detect_lanes()
-        # show frame
-        cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
-        # listen for keys
-        key_pressed = cv2.waitKey(1)
+      try:
+        # start reading video frames
+        ret, self.frame = self.video.read()
+        # if next frame grabbed
+        if ret and skip%3 == 0:
+          # transform to gray
+          self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+          self.detect_cars()
+          self.detect_pedestrians()
+          self.detect_lanes()
+          # show frame
+          cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
+          # listen for keys
+          key_pressed = cv2.waitKey(1)
 
-      if key_pressed == 81 or key_pressed == 113:
-        break 
-      
-      skip += 1
+        if key_pressed == 81 or key_pressed == 113:
+          break 
+        
+        skip += 1
+        
+      except:
+        pass
 
     self.video.release()
     cv2.destroyAllWindows()
