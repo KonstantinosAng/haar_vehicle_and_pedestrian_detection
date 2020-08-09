@@ -82,4 +82,4 @@ if __name__ == "__main__":
   if options.video:
     video_file = options.video
     classifier = Classifier(video_file)
-    classifier.run()
+    classifier.detect()
