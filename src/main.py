@@ -106,6 +106,11 @@ class Classifier:
           x1, y1, x2, y2 = line
           cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
       self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
+      # shade lanes
+      x1, y1, x2, y2 = lanes[0]
+      x3, y3, x4, y4 = lanes[1]
+      polygons = np.array([[[x1, y1], [x2, y2], [x4, y4], [x3, y3]]])
+      cv2.fillPoly(self.frame, polygons, color=[160, 32, 240])
     except:
       pass
 
