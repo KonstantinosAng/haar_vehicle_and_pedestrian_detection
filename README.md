@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Use the classifier by running the [scr/main.py](src/main.py) file using the default videos [pedestrians and cars](videos/ped.mp4) [lane](videos/test.mp4). You can also specify the path to a specific video using the following line.
+Use the classifier by running the [scr/main.py](src/main.py) file using the default videos [pedestrians and cars detection](videos/ped.mp4) or [lane detection](videos/test.mp4). You can also specify the path to a specific video using the following line.
 
 ```
 python src/main.py -v <path to video file>
