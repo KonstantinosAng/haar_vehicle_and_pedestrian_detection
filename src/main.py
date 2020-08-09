@@ -39,7 +39,7 @@ class Classifier:
 
   def region_of_interest(self):
     height, width = self.canny.shape[0], self.canny.shape[1]
-    polygons = np.array([[(80, height), (400 + width//2, height), (width//2, 200)]])
+    polygons = np.array([[(int(width//2 - width//2.1), height-100), (int(width//2 + width//2.1), height-100), (width//2, height//2 + 120)]])
     mask = np.zeros_like(self.canny)
     cv2.fillPoly(mask, polygons, 255)
     masked_image = cv2.bitwise_and(self.canny, mask)
@@ -132,7 +132,7 @@ class Classifier:
           break 
         
         skip += 1
-        
+
       except:
         pass
 
@@ -142,7 +142,7 @@ class Classifier:
 if __name__ == "__main__":
   from optparse import OptionParser
   parser = OptionParser()
-  parser.add_option('--video', action='store', default='videos/ped.mp4', type='string',
+  parser.add_option('--video', action='store', default='videos/test.mp4', type='string',
                     dest='video', help='path to the video file')
 
   (options, args) = parser.parse_args()
