@@ -137,11 +137,11 @@ class Classifier:
           key_pressed = cv2.waitKey(1)
           skip = 0
         
+          if key_pressed == 81 or key_pressed == 113:
+            break
+        
         if not ret:
           break
-
-        if key_pressed == 81 or key_pressed == 113:
-          break 
         
         skip += 1
 
