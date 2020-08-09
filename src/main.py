@@ -34,15 +34,44 @@ class Classifier:
     self.canny = cv2.Canny(self.blur, low_threshold, upper_threshold)
     roi = self.region_of_interest()
     lanes = cv2.HoughLinesP(roi, 2, 1*np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
+    lanes = self.average_slope(lanes)
     self.draw_lanes(lanes, (255, 0, 0))
 
   def region_of_interest(self):
     height, width = self.canny.shape[0], self.canny.shape[1]
-    polygons = np.array([[(100, height), (400 + width//2, height), (width//2, 250)]])
+    polygons = np.array([[(80, height), (400 + width//2, height), (width//2, 200)]])
     mask = np.zeros_like(self.canny)
     cv2.fillPoly(mask, polygons, 255)
     masked_image = cv2.bitwise_and(self.canny, mask)
     return masked_image
+
+  def average_slope(self, lanes):
+    left, right = [], []
+    for line in lanes:
+      x1, y1, x2, y2 = line.reshape(4)
+      parameters = np.polyfit((x1, x2), (y1, y2), 1)
+      slope, intercept = parameters[0], parameters[1]
+      if slope < 0:
+        left.append((slope, intercept))
+      else:
+        right.append((slope, intercept))
+    left_average, right_average = np.average(left, axis=0), np.average(right, axis=0)
+    if left_average.size == 1: left_average = np.array([1, 1])
+    if right_average.size == 1: right_average = np.array([1, 1])
+    right_line = self.fix_lane_coordinate(right_average)
+    left_line = self.fix_lane_coordinate(left_average)
+    return np.array([left_line, right_line])
+
+  def fix_lane_coordinate(self, average):
+    try:
+      slope, intercept = average
+      y1 = self.frame.shape[0]
+      y2 = int(y1*(3/5))
+      x1 = int((y1 - intercept)/slope)
+      x2 = int((y2 - intercept)/slope)
+      return np.array([x1, y1, x2, y2])
+    except:
+      return np.array([1, 1, 1, 1])
 
   def detect_cars(self):
     # detect each car
@@ -67,12 +96,15 @@ class Classifier:
     cv2.putText(self.frame, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
   def draw_lanes(self, lanes, color):
-    lane_image = np.zeros_like(self.frame)
-    if lanes is not None:
-      for line in lanes:
-        x1, y1, x2, y2 = line.reshape(4)
-        cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
-    self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
+    try:
+      lane_image = np.zeros_like(self.frame)
+      if lanes is not None:
+        for line in lanes:
+          x1, y1, x2, y2 = line.reshape(4)
+          cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
+      self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
+    except:
+      pass
 
   def detect(self):
     skip = 0
