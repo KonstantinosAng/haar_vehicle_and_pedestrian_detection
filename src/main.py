@@ -29,13 +29,16 @@ class Classifier:
     self.ped_classifier = cv2.CascadeClassifier(self.ped_cascade)
 
   def detect_lanes(self):
-    self.blur = cv2.GaussianBlur(self.gray, (5, 5), 0)
-    low_threshold, upper_threshold = 50, 150
-    self.canny = cv2.Canny(self.blur, low_threshold, upper_threshold)
-    roi = self.region_of_interest()
-    lanes = cv2.HoughLinesP(roi, 2, 1*np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
-    lanes = self.average_slope(lanes)
-    self.draw_lanes(lanes, (255, 0, 0))
+    try:
+      self.blur = cv2.GaussianBlur(self.gray, (5, 5), 0)
+      low_threshold, upper_threshold = 50, 150
+      self.canny = cv2.Canny(self.blur, low_threshold, upper_threshold)
+      roi = self.region_of_interest()
+      lanes = cv2.HoughLinesP(roi, 2, 1*np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
+      lanes = self.average_slope(lanes)
+      self.draw_lanes(lanes, (255, 0, 0))
+    except Exception as e:
+      print('[CANT DETECT LANES] {}'.format(e))
 
   def region_of_interest(self):
     height, width = self.canny.shape[0], self.canny.shape[1]
@@ -101,18 +104,18 @@ class Classifier:
   def draw_lanes(self, lanes, color):
     try:
       lane_image = np.zeros_like(self.frame)
-      if lanes is not None:
+      if len(lanes) > 1:
         for line in lanes:
           x1, y1, x2, y2 = line
           cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
-      self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
-      # shade lanes
-      x1, y1, x2, y2 = lanes[0]
-      x3, y3, x4, y4 = lanes[1]
-      polygons = np.array([[[x1, y1], [x2, y2], [x4, y4], [x3, y3]]])
-      cv2.fillPoly(self.frame, polygons, color=[160, 32, 240])
-    except:
-      pass
+        self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
+        # shade lanes
+        x1, y1, x2, y2 = lanes[0]
+        x3, y3, x4, y4 = lanes[1]
+        polygons = np.array([[[x1, y1], [x2, y2], [x4, y4], [x3, y3]]])
+        cv2.fillPoly(self.frame, polygons, color=[160, 32, 240])
+    except Exception as e:
+      print('[CANT DRAW LANES] {}'.format(e))
 
   def detect(self):      
     skip = 0
@@ -122,7 +125,7 @@ class Classifier:
         # start reading video frames
         ret, self.frame = self.video.read()
         # if next frame grabbed
-        if ret and skip%3 == 0:
+        if ret and skip%6 == 0:
           # transform to gray
           self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
           self.detect_cars()
@@ -132,6 +135,10 @@ class Classifier:
           cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
           # listen for keys
           key_pressed = cv2.waitKey(1)
+          skip = 0
+        
+        if not ret:
+          break
 
         if key_pressed == 81 or key_pressed == 113:
           break 
@@ -147,7 +154,7 @@ class Classifier:
 if __name__ == "__main__":
   from optparse import OptionParser
   parser = OptionParser()
-  parser.add_option('--video', action='store', default='videos/test.mp4', type='string',
+  parser.add_option('-v', action='store', default='videos/test.mp4', type='string',
                     dest='video', help='path to the video file')
 
   (options, args) = parser.parse_args()
