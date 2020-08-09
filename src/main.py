@@ -42,10 +42,11 @@ class Classifier:
 
   def region_of_interest(self):
     height, width = self.canny.shape[0], self.canny.shape[1]
-    polygons = np.array([[(int(width//2 - width//2.1), height-100), (int(width//2 + width//2.1), height-100), (width//2, height//2 + 120)]])
+    polygons = np.array([[(int(width//2 - width//2.1), height-100), (int(width//2 + width//2.1), height-100), (width//2, height//2 + 110)]])
     mask = np.zeros_like(self.canny)
     cv2.fillPoly(mask, polygons, 255)
     masked_image = cv2.bitwise_and(self.canny, mask)
+    # cv2.imshow('mask', cv2.resize(masked_image, (960, 540)))
     return masked_image
 
   def average_slope(self, lanes):
@@ -107,7 +108,8 @@ class Classifier:
       if len(lanes) > 1:
         for line in lanes:
           x1, y1, x2, y2 = line
-          cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
+          #cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
+          cv2.polylines(lane_image, [np.array([[x1, y1], [x2, y2]])], True, color, 10)
         self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
         # shade lanes
         x1, y1, x2, y2 = lanes[0]
