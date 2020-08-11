@@ -277,20 +277,20 @@ class Classifier:
   def draw_text(self, text, pos, color):
     cv2.putText(self.frame, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
-  def draw_lanes(self, lanes, color):
+  def draw_lanes(self, lanes, color, shade=True):
     try:
       lane_image = np.zeros_like(self.frame)
       if len(lanes) > 1:
         for line in lanes:
           x1, y1, x2, y2 = line
-          #cv2.line(lane_image, (x1, y1), (x2, y2), color, 10)
           cv2.polylines(lane_image, [np.array([[x1, y1], [x2, y2]])], True, color, 10)
         self.frame = cv2.addWeighted(lane_image, 0.8, self.frame, 1, 1)
-        # shade lanes
-        x1, y1, x2, y2 = lanes[0]
-        x3, y3, x4, y4 = lanes[1]
-        polygons = np.array([[[x1, y1], [x2, y2], [x4, y4], [x3, y3]]])
-        cv2.fillPoly(self.frame, polygons, color=[160, 32, 240])
+        if shade:
+          # shade lanes
+          x1, y1, x2, y2 = lanes[0]
+          x3, y3, x4, y4 = lanes[1]
+          polygons = np.array([[[x1, y1], [x2, y2], [x4, y4], [x3, y3]]])
+          cv2.fillPoly(self.frame, polygons, color=[160, 32, 240])
     except Exception as e:
       print('[CANT DRAW LANES] {}'.format(e))
 
@@ -301,6 +301,7 @@ class Classifier:
       try:
         # start reading video frames
         ret, self.frame = self.video.read()
+        self.frame = cv2.resize(self.frame, (int(self.frame.shape[1]//2.3), int(self.frame.shape[0]//2.3)))
         # if next frame grabbed
         if ret and skip%1 == 0:
           """ Car and pedestrian detection """
@@ -308,24 +309,23 @@ class Classifier:
           self.detect_cars()
           self.detect_pedestrians()
           # Depreciated way of detecting the lanes
-          #lanes = self.detect_lanes()
+          lanes = self.detect_lanes()
           """ Lane detection """
           self.find_lanes()
           """ DRAW EVERYTHING ON FRAME"""
           self.draw_line_lanes()
-          #self.draw_lanes(lanes, (255, 0, 0))
+          self.draw_lanes(lanes, (255, 0, 0), shade=False)
           self.draw_cars()
           self.draw_pedestrians()
           
-        """ DRAW FRAME """
-        cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
-        # listen for keys
-        key_pressed = cv2.waitKey(1)
+          """ DRAW FRAME """
+          cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
+          # listen for keys
+          key_pressed = cv2.waitKey(1)
       
-        if key_pressed == 81 or key_pressed == 113:
-          break
-        
-        if not ret:
+          if key_pressed == 81 or key_pressed == 113:
+            break
+        else:
           break
         
         skip += 1
