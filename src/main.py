@@ -248,6 +248,7 @@ class Classifier:
     self.destination_image = self.hsl_detection()
     self.destination_image = self.perspective_warp_top_view()
     self.curves = self.sliding_window(self.destination_image)
+    self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
 
   def draw_cars(self):
     # place a rectangle around car
@@ -301,9 +302,12 @@ class Classifier:
       try:
         # start reading video frames
         ret, self.frame = self.video.read()
-        self.frame = cv2.resize(self.frame, (int(self.frame.shape[1]//2.3), int(self.frame.shape[0]//2.3)))
         # if next frame grabbed
         if ret and skip%1 == 0:
+          if self.frame.shape[1] > 960:
+            ratio = self.frame.shape[0]/self.frame.shape[1]
+            # self.frame = cv2.resize(self.frame, (int(self.frame.shape[1]//2), int(self.frame.shape[0]//2)))
+            self.frame = cv2.resize(self.frame, (800, int(800*ratio)))
           """ Car and pedestrian detection """
           self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
           self.detect_cars()
@@ -319,7 +323,7 @@ class Classifier:
           self.draw_pedestrians()
           
           """ DRAW FRAME """
-          cv2.imshow('DETECTION', cv2.resize(self.frame, (960, 540)))
+          cv2.imshow('DETECTION', self.frame)
           # listen for keys
           key_pressed = cv2.waitKey(1)
       
