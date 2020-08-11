@@ -248,7 +248,6 @@ class Classifier:
     self.destination_image = self.hsl_detection()
     self.destination_image = self.perspective_warp_top_view()
     self.curves = self.sliding_window(self.destination_image)
-    self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
 
   def draw_cars(self):
     # place a rectangle around car
@@ -307,7 +306,7 @@ class Classifier:
           if self.frame.shape[1] > 960:
             ratio = self.frame.shape[0]/self.frame.shape[1]
             # self.frame = cv2.resize(self.frame, (int(self.frame.shape[1]//2), int(self.frame.shape[0]//2)))
-            self.frame = cv2.resize(self.frame, (680, int(680*ratio)))
+            self.frame = cv2.resize(self.frame, (600, int(600*ratio)))
           """ Car and pedestrian detection """
           self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
           self.detect_cars()
@@ -318,10 +317,10 @@ class Classifier:
           self.find_lanes()
           """ DRAW EVERYTHING ON FRAME"""
           self.draw_line_lanes()
+          self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
           self.draw_lanes(lanes, (255, 0, 0), shade=False)
           self.draw_cars()
           self.draw_pedestrians()
-          
           """ DRAW FRAME """
           cv2.imshow('DETECTION', self.frame)
           # listen for keys
