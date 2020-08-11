@@ -307,7 +307,7 @@ class Classifier:
           if self.frame.shape[1] > 960:
             ratio = self.frame.shape[0]/self.frame.shape[1]
             # self.frame = cv2.resize(self.frame, (int(self.frame.shape[1]//2), int(self.frame.shape[0]//2)))
-            self.frame = cv2.resize(self.frame, (800, int(800*ratio)))
+            self.frame = cv2.resize(self.frame, (680, int(680*ratio)))
           """ Car and pedestrian detection """
           self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
           self.detect_cars()
@@ -335,6 +335,15 @@ class Classifier:
         skip += 1
 
       except Exception as e:
+        
+        if ret:
+          cv2.imshow('DETECTION', self.frame)
+          # listen for keys
+          key_pressed = cv2.waitKey(1)
+          
+          if key_pressed == 81 or key_pressed == 113:
+            break
+        
         print('[DETECT] {}'.format(e))
 
     self.video.release()
