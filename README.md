@@ -1,5 +1,5 @@
 # haar_vehicle_and_pedestrian_detection
-Haar cascade for detecting vehicles and pedestrians in videos using Python
+Haar cascade for detecting vehicles and pedestrians in videos using Python and image processing to detect line lanes.
 
 ## Installation
 
